@@ -36,5 +36,5 @@ Use `python ospa.py`. CLI also provides the same set of options.
 | log-requests | -l                  | --log              |
 | auto-refresh | -r                  | --refresh          |
 | no-php       | -np                 | --no-php           |
-| auto-refresh | -nj                 | --no-j2            |
+| no-j2        | -nj                 | --no-j2            |
 
