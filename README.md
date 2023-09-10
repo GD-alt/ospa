@@ -2,7 +2,9 @@
 ### OpenServer Portable Alternative
 
 **DISCLAIMER:** I'm not porting this for Linux, because OSP is a piece of shit nobody needs, and even more so for Windows only. 
+
 **DISCLAIMER 2:** Yep, it's truly shitty code, don't shitcode-blame me.
+
 **DISCLAIMER 3:** Yeah, I know if you transliterate `ospa` to Russian, you'll get `оспа` and it means `pox` lol
 
 ## Introduction
@@ -15,9 +17,12 @@ OSPA has a configuration file stored in the folder where the script resides. It 
 |:------------:|:------------------------------------------------------------------------------------------------------------------------------------:|:-----------------:|:-------------:|
 | config-path  | Path to the config file.                                                                                                             | config.yaml       | str           |
 | index        | Index page.                                                                                                                          | index.html        | str           |
-| php-path     | Path to the **PHP executable**. If not present, will be created.                                                                    | php/php.exe       | str           |
+| php-path     | Path to the **PHP executable**. If not present, will be created.                                                                     | php/php.exe       | str           |
 | port         | Port on which to run a server.                                                                                                       | 12521             | int           |
 | log-requests | If OSPA should log time, method and path of incoming requests in fucking awesome, truly beautiful, incomprehensibly good formatting. | false             | bool          |
+| auto-refresh | If OSPA should automatically update the page contents as HTML/PHP/Jinja2/CSS/JS contents update.                                     | false             | bool          |
+| no-php       | If you are going to ruin all the fun and run OSPA in no-PHP mode.                                                                    | false             | bool          |
+| no-j2        | If you are going to ruin part of the fun and run OSPA in no-Jinja2 mode.                                                             | false             | bool          |
 
 ## Usage
 Use `python ospa.py`. CLI also provides the same set of options.
@@ -29,4 +34,7 @@ Use `python ospa.py`. CLI also provides the same set of options.
 | php-path     | -pp                 | --php-path         |
 | port         | -p                  | --port             |
 | log-requests | -l                  | --log              |
+| auto-refresh | -r                  | --refresh          |
+| no-php       | -np                 | --no-php           |
+| auto-refresh | -nj                 | --no-j2            |
 
