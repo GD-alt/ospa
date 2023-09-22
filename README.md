@@ -1,7 +1,7 @@
 # ospa
 ### OpenServer Portable Alternative
 
-**DISCLAIMER: ospa is *not for production* use.** By default, it uses php-cgi.exe, which has possible vulnerabilities. Please read [CGI security section](https://www.php.net/manual/en/security.cgi-bin.php) on PHP official site. 
+**DISCLAIMER: ospa is *not for production* use.** By default, it uses php-cgi.exe, which has possible vulnerabilities. Please read [CGI security section](https://www.php.net/manual/en/security.cgi-bin.php) on official PHP site. 
 
 **DISCLAIMER:** I'm not porting this for Linux, because OSP is a piece of shit nobody needs, and even more so for Windows only. 
 

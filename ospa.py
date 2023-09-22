@@ -336,7 +336,7 @@ def compile_php(filename: str, params: dict = None, debug: bool = False) -> str:
 
     cmd = [php_path, filepath.as_posix(), '--no-header']
     for param, vals in params.items():
-        if len(vals) < 1:
+        if len(vals) == 1:
             cmd.append(f'{param}={vals[0]}')
             continue
 
