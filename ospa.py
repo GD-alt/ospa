@@ -184,27 +184,27 @@ except ModuleNotFoundError:
     c.print('[green]yaml installed![/green]\n')
 
 avaliable_args = {
-    'port': (('-p', '--port'), int, 12521, 'Port to run server on'),
-    'php-path': (('-pp', '--php-path'), str, 'php/php-cgi.exe', 'Path to PHP CGI executable'),
-    'config-path': (('-c', '--config-path'), str, 'config.yaml', 'Path to config file'),
-    'index': (('-i', '--index'), str, 'index.php', 'Path to index file'),
-    'log-requests': (('-l', '--log'), bool, False, 'If requests should be logged'),
-    'auto-refresh': (('-r', '--refresh'), bool, False, 'If auto-refresh should be enabled'),
-    'no-php': (('-np', '--no-php'), bool, False, 'Disable PHP support'),
-    'no-j2': (('-nj', '--no-j2'), bool, False, 'Disable Jinja2 support'),
-    'no-assets-serve': (('-na', '--no-assets'), bool, False, 'Disable assets serving (assets will be served from '
-                                                             'the main folder)'),
-    'serve-dir': (('-sd', '--serve-dir'), str, '.', 'Directory to serve files from'),
+    'port': (('-p', '--port'), 12521, 'Port to run server on'),
+    'php-path': (('-pp', '--php-path'), 'php/php-cgi.exe', 'Path to PHP CGI executable'),
+    'config-path': (('-c', '--config-path'), 'config.yaml', 'Path to config file'),
+    'index': (('-i', '--index'), 'index.php', 'Path to index file'),
+    'log-requests': (('-l', '--log'), False, 'If requests should be logged'),
+    'auto-refresh': (('-r', '--refresh'), False, 'If auto-refresh should be enabled'),
+    'no-php': (('-np', '--no-php'), False, 'Disable PHP support'),
+    'no-j2': (('-nj', '--no-j2'), False, 'Disable Jinja2 support'),
+    'no-assets-serve': (('-na', '--no-assets'), False, 'Disable assets serving (assets will be served from '
+                                                       'the main folder)'),
+    'serve-dir': (('-sd', '--serve-dir'), '.', 'Directory to serve files from'),
 }
 
 parser = ArgumentParser(description='OpenServer Portable Alternative')
 default_values = {}
 
 for key, value in avaliable_args.items():
-    if value[1] == bool:
-        parser.add_argument(*value[0], action='store_true', default=None, help=value[3])
+    if isinstance(value[1], bool):
+        parser.add_argument(*value[0], action='store_true', default=value[1], help=value[2])
     else:
-        parser.add_argument(*value[0], default=None, type=value[1], help=value[3])
+        parser.add_argument(*value[0], default=value[1], type=type(value[1]), help=value[2])
 
     default_values[key] = value[2]
 
@@ -334,11 +334,16 @@ def compile_php(filename: str, params: dict = None, debug: bool = False) -> str:
     if not filename.endswith('.php'):
         raise ValueError(f'File {filename} is not a PHP file')
 
-    cmd = [php_path, filepath.as_posix()]
-    for k, val in params.items():
-        cmd.append(f'{k}={val}')
+    cmd = [php_path, filepath.as_posix(), '--no-header']
+    for param, vals in params.items():
+        if len(vals) < 1:
+            cmd.append(f'{param}={vals[0]}')
+            continue
 
-    res_bytes = subprocess.run([php_path, filepath.as_posix()], capture_output=True).stdout
+        for val in vals:
+            cmd.append(f'{param}[]={val}')
+
+    res_bytes = subprocess.run(cmd, capture_output=True).stdout
 
     try:
         res = res_bytes.decode('utf-8')
@@ -430,7 +435,6 @@ async def index(request: Request):
     else:
         debug = True
 
-    pars = {k: ' '.join(val) for k, val in request.args.items() if k != 'AUTOREFRESH'}
     path = run_args['index']
 
     try:
@@ -455,7 +459,7 @@ async def index(request: Request):
         res = template.render(myargs)
         with open(f'{path.split(".")[-3]}.php', 'w') as file:
             file.write(res)
-        res = compile_php(f'{path.split(".")[-3]}.php', debug=debug)
+        res = compile_php(f'{path.split(".")[-3]}.php', request.args, debug=debug)
         os.remove(f'{path.split(".")[-3]}.php')
         if run_args['auto-refresh']:
             res = res.replace('</body>', '    <script src="assets/refresh.js"></script></body>')
@@ -466,7 +470,7 @@ async def index(request: Request):
             show_error(None, 'php-off')
             return sanic.response.text('PHP is turned off, I can\'t serve PHP files', status=500)
 
-        res = compile_php(path, pars, debug=debug)
+        res = compile_php(path, request.args, debug=debug)
         if run_args['auto-refresh']:
             res = res.replace('</body>', '    <script src="assets/refresh.js"></script></body>')
         return sanic.response.html(res)
