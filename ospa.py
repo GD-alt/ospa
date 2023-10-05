@@ -163,16 +163,21 @@ from rich.live import Live
 
 try:
     import sanic
+
+    import sanic.response
+    from sanic.request import Request
+    import sanic.exceptions
+    from sanic import Sanic
 except ModuleNotFoundError:
     c.print('[grey italic]sanic not found, attempting to install…[/grey italic]')
     subprocess.run(["py", "-m", "pip", "install", "sanic"])
     c.print('[green]sanic installed![/green]\n')
     import sanic
 
-import sanic.response
-from sanic.request import Request
-import sanic.exceptions
-from sanic import Sanic
+    import sanic.response
+    from sanic.request import Request
+    import sanic.exceptions
+    from sanic import Sanic
 
 try:
     import yaml
@@ -183,38 +188,47 @@ except ModuleNotFoundError:
 
     c.print('[green]yaml installed![/green]\n')
 
-avaliable_args = {
-    'port': (('-p', '--port'), 12521, 'Port to run server on'),
-    'php-path': (('-pp', '--php-path'), 'php/php-cgi.exe', 'Path to PHP CGI executable'),
-    'config-path': (('-c', '--config-path'), 'config.yaml', 'Path to config file'),
-    'index': (('-i', '--index'), 'index.php', 'Path to index file'),
-    'log-requests': (('-l', '--log'), False, 'If requests should be logged'),
-    'auto-refresh': (('-r', '--refresh'), False, 'If auto-refresh should be enabled'),
-    'no-php': (('-np', '--no-php'), False, 'Disable PHP support'),
-    'no-j2': (('-nj', '--no-j2'), False, 'Disable Jinja2 support'),
-    'no-assets-serve': (('-na', '--no-assets'), False, 'Disable assets serving (assets will be served from '
-                                                       'the main folder)'),
-    'serve-dir': (('-sd', '--serve-dir'), '.', 'Directory to serve files from'),
+available_args = {
+    'port': (('-p', '--port'), None, 'Port to run server on'),
+    'php-path': (('-pp', '--php-path'), None, 'Path to PHP CGI executable'),
+    'config-path': (('-c', '--config-path'), None, 'Path to config file'),
+    'index': (('-i', '--index'), None, 'Path to index file'),
+    'log-requests': (('-l', '--log'), None, 'If requests should be logged'),
+    'auto-refresh': (('-r', '--refresh'), None, 'If auto-refresh should be enabled'),
+    'no-php': (('-np', '--no-php'), None, 'Disable PHP support'),
+    'no-j2': (('-nj', '--no-j2'), None, 'Disable Jinja2 support'),
+    'no-assets-serve': (('-na', '--no-assets'), None, 'Disable assets serving (assets will be served from '
+                                                      'the main folder)'),
+    'serve-dir': (('-sd', '--serve-dir'), None, 'Directory to serve files from'),
 }
 
 parser = ArgumentParser(description='OpenServer Portable Alternative')
-default_values = {}
+default_values = {
+    'port': 12521,
+    'php-path': 'php/php-cgi.exe',
+    'config-path': 'config.yaml',
+    'index': 'index.php',
+    'log-requests': False,
+    'auto-refresh': False,
+    'no-php': False,
+    'no-j2': False,
+    'no-assets-serve': False,
+    'serve-dir': '.'
+}
 
-for key, value in avaliable_args.items():
+for key, value in available_args.items():
     if isinstance(value[1], bool):
         parser.add_argument(*value[0], action='store_true', default=value[1], help=value[2])
     else:
         parser.add_argument(*value[0], default=value[1], type=type(value[1]), help=value[2])
 
-    default_values[key] = value[2]
-
 
 def get_cli_args(cli_parser):
     crun_args = vars(cli_parser.parse_args())
-    for k, val in avaliable_args.items():
+    for k, val in available_args.items():
         crun_args[k] = crun_args[val[0][1].strip('-').replace('-', '_')]
 
-    crun_args = {k: val for k, val in crun_args.items() if k in avaliable_args}
+    crun_args = {k: val for k, val in crun_args.items() if k in available_args}
 
     if not crun_args['config-path']:
         crun_args['config-path'] = 'config.yaml'
@@ -223,7 +237,7 @@ def get_cli_args(cli_parser):
         c.print(f'[yellow]Config file not found on {crun_args["config-path"] or default_values["config-path"]}'
                 f', creating…[/yellow]')
 
-        sanit = {k: v for k, v in crun_args.items() if k != 'config-path'}
+        sanit = {k: v for k, v in default_values.items() if k != 'config-path'}
 
         Path(crun_args['config-path']).write_text(yaml.dump(sanit))
 
@@ -369,11 +383,8 @@ def compile_php(filename: str, params: dict = None, debug: bool = False) -> str:
 
 php_path = run_args['php-path']
 
-if not run_args['no-php']:
-    pass
-
-elif not Path(php_path).exists():
-    if not (c.input(f'[yellow]PHP not found on {run_args["php_path"]}\nAttempt an installation?[/yellow] '
+if not Path(php_path).exists() and not run_args['no-php']:
+    if not (c.input(f'[yellow]PHP not found on {run_args["php-path"]}\nAttempt an installation?[/yellow] '
                     f'(Y/N) ').lower() in ('y', 'yes')):
         c.print('[red]PHP not found, exiting…[/red]')
         exit(1)
@@ -390,7 +401,7 @@ elif not Path(php_path).exists():
         php_path = Path(php_path)
         php_path.parent.mkdir(exist_ok=True)
 
-        r = requests.get('https://windows.php.net/downloads/releases/php-8.2.10-nts-Win32-vs16-x64.zip',
+        r = requests.get('https://windows.php.net/downloads/releases/php-8.2.11-nts-Win32-vs16-x64.zip',
                          stream=True)
 
         with open('php.zip', 'wb') as f:

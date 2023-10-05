@@ -1,9 +1,9 @@
 # ospa
 ### OpenServer Portable Alternative
 
-**DISCLAIMER: ospa is *not for production* use.** By default, it uses php-cgi.exe, which has possible vulnerabilities. Please read [CGI security section](https://www.php.net/manual/en/security.cgi-bin.php) on official PHP site. 
+**DISCLAIMER 0: ospa is *not for production* use.** By default, it uses php-cgi.exe, which has possible vulnerabilities. Please read [CGI security section](https://www.php.net/manual/en/security.cgi-bin.php) on official PHP site. ~ G4m3-80ft
 
-**DISCLAIMER:** I'm not porting this for Linux, because OSP is a piece of shit nobody needs, and even more so for Windows only. 
+**DISCLAIMER 1:** I'm not porting this for Linux, because OSP is a piece of shit nobody needs, and even more so for Windows only. 
 
 **DISCLAIMER 2:** Yep, it's truly shitty code, don't shitcode-blame me.
 
@@ -30,7 +30,7 @@ OSPA has a configuration file stored in the folder where the script resides. It 
 
 
 ## Usage
-Use `python ospa.py`. CLI also provides the same set of options.
+Use `py ospa.py`. CLI also provides the same set of options.
 
 |   **Option**    | **CLI alt (short)** | **CLI alt (long)** |
 |:---------------:|:-------------------:|:------------------:|
@@ -44,4 +44,3 @@ Use `python ospa.py`. CLI also provides the same set of options.
 |      no-j2      |         -nj         |      --no-j2       |
 | no-assets-serve |         -na         |    --no-assets     |
 |    serve-dir    |         -sd         |    --serve-dir     |
-
