@@ -189,17 +189,17 @@ except ModuleNotFoundError:
     c.print('[green]yaml installed![/green]\n')
 
 available_args = {
-    'port': (('-p', '--port'), None, 'Port to run server on'),
-    'php-path': (('-pp', '--php-path'), None, 'Path to PHP CGI executable'),
-    'config-path': (('-c', '--config-path'), None, 'Path to config file'),
-    'index': (('-i', '--index'), None, 'Path to index file'),
-    'log-requests': (('-l', '--log'), None, 'If requests should be logged'),
-    'auto-refresh': (('-r', '--refresh'), None, 'If auto-refresh should be enabled'),
-    'no-php': (('-np', '--no-php'), None, 'Disable PHP support'),
-    'no-j2': (('-nj', '--no-j2'), None, 'Disable Jinja2 support'),
-    'no-assets-serve': (('-na', '--no-assets'), None, 'Disable assets serving (assets will be served from '
+    'port': (('-p', '--port'), 'Port to run server on'),
+    'php-path': (('-pp', '--php-path'), 'Path to PHP CGI executable'),
+    'config-path': (('-c', '--config-path'), 'Path to config file'),
+    'index': (('-i', '--index'), 'Path to index file'),
+    'log-requests': (('-l', '--log'), 'If requests should be logged'),
+    'auto-refresh': (('-r', '--refresh'), 'If auto-refresh should be enabled'),
+    'no-php': (('-np', '--no-php'), 'Disable PHP support'),
+    'no-j2': (('-nj', '--no-j2'), 'Disable Jinja2 support'),
+    'no-assets-serve': (('-na', '--no-assets'), 'Disable assets serving (assets will be served from '
                                                       'the main folder)'),
-    'serve-dir': (('-sd', '--serve-dir'), None, 'Directory to serve files from'),
+    'serve-dir': (('-sd', '--serve-dir'), 'Directory to serve files from'),
 }
 
 parser = ArgumentParser(description='OpenServer Portable Alternative')
@@ -218,9 +218,10 @@ default_values = {
 
 for key, value in available_args.items():
     if isinstance(value[1], bool):
-        parser.add_argument(*value[0], action='store_true', default=value[1], help=value[2])
+        parser.add_argument(*value[0], action='store_true', default=None, help=value[1])
     else:
-        parser.add_argument(*value[0], default=value[1], type=type(value[1]), help=value[2])
+        parser.add_argument(*value[0], default=None, type=type(default_values[key]),
+                            help=value[1])
 
 
 def get_cli_args(cli_parser):
